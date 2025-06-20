@@ -47,28 +47,35 @@ export const authService = {
   },
 
   async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await fetch(`${API_BASE_URL}/authentication/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    
-    const result = await handleResponse(response);
-    
-    // Ajuste para la estructura real del backend
-    if (result && result.result && result.result.token) {
-      return {
-        status: result.status || 200,
-        message: result.message || 'success',
-        data: {
-          token: result.result.token,
-          email: result.result.username // Usamos username como email
-        }
-      };
-    }
-    
-    throw new Error('No se recibió un token válido del backend');
-  },
+  console.log('Iniciando sesión:', data.email);
+  const response = await fetch(`${API_BASE_URL}/authentication/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  const result = await handleResponse(response);
+
+  // Guardamos los datos si el token es válido
+  if (result && result.result && result.result.token) {
+    localStorage.setItem('token', result.result.token);
+    localStorage.setItem('email', result.result.username); // usamos username como email
+    console.log('Token guardado correctamente');
+  } else {
+    console.error('Respuesta inesperada del backend al hacer login:', result);
+    throw new Error('No se recibió un token válido del backend.');
+  }
+
+  // Retornamos el resultado tal cual lo da el backend, ya que cumple con LoginResponse
+  return {
+    status: result.status,
+    message: result.message,
+    result: {
+      token: result.result.token,
+      username: result.result.username,
+    },
+  };
+},
 
   logout() {
     localStorage.removeItem('token');

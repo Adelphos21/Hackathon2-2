@@ -7,9 +7,9 @@ export interface LoginRequest {
 export interface LoginResponse {
   status: number;
   message: string;
-  data: {
+  result: {
     token: string;
-    email: string;
+    username: string;
   };
 }
 
@@ -34,13 +34,6 @@ export interface ExpenseDetail {
 }
 
 export interface ExpenseCreate {
-  amount: number;
-  description: string;
-  categoryId: number;
-  date: string;
-}
-// Tipo adicional para la solicitud al backend
-export interface ExpenseCreateRequest {
   amount: number;
   description: string;
   category: {
