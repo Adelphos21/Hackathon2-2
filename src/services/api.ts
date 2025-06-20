@@ -84,6 +84,7 @@ export const authService = {
 };
 
 // Servicio de Gastos
+// Servicio de Gastos
 export const expenseService = {
   async getSummary(year: number, month: number): Promise<ExpenseSummary[]> {
     const response = await fetch(
@@ -92,7 +93,32 @@ export const expenseService = {
         headers: getAuthHeaders()
       }
     );
-    return handleResponse(response);
+
+    const rawData = await handleResponse(response);
+
+    const groupedMap = new Map<number, ExpenseSummary>();
+
+    rawData.forEach((item: any) => {
+      if ((year && item.year !== year) || (month && item.month !== month)) return;
+
+      const catId = item.expenseCategory?.id;
+      const catName = item.expenseCategory?.name ?? 'Sin categoría';
+
+      let amount = parseFloat(item.amount);
+      if (isNaN(amount)) amount = 0;
+
+      if (groupedMap.has(catId)) {
+        groupedMap.get(catId)!.totalAmount += amount;
+      } else {
+        groupedMap.set(catId, {
+          categoryId: catId,
+          categoryName: catName,
+          totalAmount: amount
+        });
+      }
+    });
+
+    return Array.from(groupedMap.values());
   },
 
   async getDetails(
