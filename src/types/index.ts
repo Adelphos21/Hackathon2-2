@@ -5,6 +5,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  result: any;
   status: number;
   message: string;
   result: {
